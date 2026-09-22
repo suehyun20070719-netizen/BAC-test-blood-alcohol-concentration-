@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="몸상태"/>
 <link rel="apple-touch-icon" href="icon.png.png"/>
 <link rel="icon" href="icon.png.png"/>
-<title>몸상태 측정기</title>
+<title>몸 상태 측정기</title>
 <style>
 :root{--fg:#262626;--muted:#8e8e8e;--line:#dbdbdb;--accent:#262626;--veil:rgba(255,255,255,.78);--shot:none}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -54,7 +54,7 @@ canvas{width:100%;height:170px;margin-top:10px;background:#fff;border:1px solid 
 <body>
 <div id="splash">
   <h2>BAC test</h2>
-  <p>blood alcohol · 몸상태 측정<br>술 · 담배 · 카페인</p>
+  <p>blood alcohol content · 몸 상태 측정<br>술 · 담배 · 카페인</p>
   <button class="go" type="button" onclick="startApp()">시작하기</button>
 </div>
 <div id="dim" onclick="closeMenu()"></div>
@@ -81,7 +81,7 @@ canvas{width:100%;height:170px;margin-top:10px;background:#fff;border:1px solid 
     </div>
     <div id="pane-hist" class="hide tip">
       <button class="back" type="button" onclick="backMenu()">← 메뉴</button>
-      <h3>이 폰에만 저장</h3>
+      <h3>이 기기에만 저장</h3>
       <p>로그인 없음. 사이트 데이터를 지우면 사라집니다.</p>
       <div id="hist-list"></div>
       <button class="go" type="button" onclick="clearHist()">기록 지우기</button>
@@ -89,7 +89,7 @@ canvas{width:100%;height:170px;margin-top:10px;background:#fff;border:1px solid 
     <div id="pane-me" class="hide tip">
       <button class="back" type="button" onclick="backMenu()">← 메뉴</button>
       <h3>개인 가중치</h3>
-      <p>유전자 검사가 아닙니다. 느낀 대로 맞추면 이 폰에 저장됩니다.</p>
+      <p>유전자 검사가 아닙니다. 느낀 대로 맞추면 이 기기에 저장됩니다.</p>
       <div class="label">술 흡수 (낮음 → 높음)</div>
       <input id="w-abs" type="range" min="70" max="130" value="100"/>
       <div class="label">술 분해 (느림 → 빠름)</div>
@@ -117,19 +117,19 @@ canvas{width:100%;height:170px;margin-top:10px;background:#fff;border:1px solid 
       <h3>음주 전</h3>
       <p>공복이면 흡수가 빨라집니다. 밥·안주를 먼저 드세요.</p>
       <h3>음주 중</h3>
-      <p>술 한 잔에 물 한 잔. 여러 술을 섞으면 양을 놓치기 쉽습니다. 물이 BAC를 0으로 만들지는 않습니다.</p>
+      <p>술 한 잔에 물 한 잔. 여러 술을 섞으면 양을 놓치기 쉽습니다. 물이 혈중알코올 농도를 0으로 만들지는 않습니다.</p>
       <h3>음주 후</h3>
       <p>물·국물·잠. 해장술은 숙취를 미룹니다. 이 숫자로 운전하지 마세요.</p>
     </div>
     <div id="pane-caf" class="hide tip">
       <button class="back" type="button" onclick="backMenu()">← 메뉴</button>
       <h3>카페인</h3>
-      <p>반감기 기본 약 5시간. 잠들기 6시간 전 끊기. 커피냅은 마시고 15~20분 낮잠.</p>
+      <p>반감기 기본 약 5시간. 잠들기 6시간 전 끊기. 커피냅(피로물질인 아데노신이 낮잠을 자는동안 분해되며 아데노신의 자리를 대체하는 카페인이 뇌의 수용체에 도달하는데 약20분이 걸리기 때문) 은 마시고 15~20분 낮잠.</p>
     </div>
     <div id="pane-mix" class="hide tip">
       <button class="back" type="button" onclick="backMenu()">← 메뉴</button>
       <h3>술 + 카페인</h3>
-      <p>카페인이 취한 느낌을 가립니다. 더 마시거나 운전할 위험이 커집니다. 혈중알코올은 낮아지지 않습니다.</p>
+      <p>카페인이 취한 느낌을 가립니다. 더 마시거나 운전할 위험이 커집니다. 혈중알코올은 낮아지지 않습니다(예거밤등 카페인과 알코올이 모두 함유 되어있는 술은 주의하십시오).</p>
     </div>
     <div id="pane-tob" class="hide tip">
       <button class="back" type="button" onclick="backMenu()">← 메뉴</button>

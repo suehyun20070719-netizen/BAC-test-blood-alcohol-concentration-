@@ -4,35 +4,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="몸상태 측정" />
+  <meta name="apple-mobile-web-app-title" content="몸상태" />
   <link rel="apple-touch-icon" href="icon.png.png" />
   <link rel="icon" href="icon.png.png" />
-  <title>몸상태 측정</title>
+  <title>몸상태 측정기</title>
   <style>
-    :root { --bg:#0b0d12; --card:#151922; --card2:#1c2230; --line:#2a3142; --text:#f3f5f8; --muted:#9aa3b5; --green:#7ee0b0; --warn:#ffb454; --danger:#ff6b7a; }
+    :root { --bg:#fafafa; --card:#fff; --card2:#fafafa; --line:#dbdbdb; --text:#262626; --muted:#8e8e8e; --green:#0095f6; --warn:#ed4956; --danger:#ed4956; }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif; background:#0b0d12; color:var(--text); min-height:100dvh; padding:16px 14px 40px; }
-    .wrap { max-width:480px; margin:0 auto; }
-    h1 { font-size:22px; }
-    .sub { color:var(--muted); font-size:13px; margin:6px 0 14px; line-height:1.45; }
-    .tabs { display:flex; gap:6px; margin-bottom:12px; }
-    .tabs button { flex:1; padding:10px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; }
-    .tabs button.on { border-color:var(--green); color:var(--green); }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; margin-top:10px; }
-    .label { font-size:12px; color:var(--muted); font-weight:700; margin:10px 0 6px; }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif; background:#fafafa; color:var(--text); min-height:100dvh; padding:0 0 40px; }
+    .wrap { max-width:470px; margin:0 auto; background:#fff; min-height:100dvh; border-left:1px solid #dbdbdb; border-right:1px solid #dbdbdb; padding:14px 16px 32px; }
+    h1 { font-size:26px; font-weight:600; letter-spacing:-0.4px; background:linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .sub { color:var(--muted); font-size:13px; margin:6px 0 16px; line-height:1.45; }
+    .tabs { display:flex; gap:10px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #dbdbdb; }
+    .tabs button { flex:1; padding:8px 0 10px; border:0; background:none; color:#8e8e8e; font:inherit; font-weight:600; position:relative; }
+    .tabs button.on { color:#262626; }
+    .tabs button.on:after { content:""; position:absolute; left:20%; right:20%; bottom:0; height:2px; background:linear-gradient(90deg,#f9ce34,#ee2a7b,#6228d7); border-radius:2px; }
+    .card { background:#fff; border:1px solid #dbdbdb; border-radius:12px; padding:14px; margin-top:12px; }
+    .label { font-size:12px; color:#8e8e8e; font-weight:600; margin:10px 0 6px; }
     .row { display:flex; gap:8px; }
     .row > * { flex:1; }
-    input, select { width:100%; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; color:var(--text); font:inherit; }
-    .go { width:100%; margin-top:12px; padding:14px; border:0; border-radius:14px; background:linear-gradient(180deg,#8ef0bc,#4fd89a); color:#062016; font-weight:800; font-size:16px; }
-    .out { display:none; margin-top:12px; }
-    .big { font-size:36px; font-weight:800; }
-    .stage { display:inline-block; margin-top:6px; padding:5px 10px; border-radius:999px; font-size:13px; font-weight:700; }
-    .note { font-size:12px; color:var(--muted); margin-top:10px; line-height:1.45; }
-    .warn { margin-top:10px; padding:10px; border-radius:12px; background:#2a1b1d; color:#ffc2c8; font-size:12px; line-height:1.4; }
+    input, select { width:100%; background:#fafafa; border:1px solid #dbdbdb; border-radius:8px; padding:11px 12px; color:#262626; font:inherit; }
+    input:focus, select:focus { outline:none; border-color:#a8a8a8; }
+    .go { width:100%; margin-top:12px; padding:12px; border:0; border-radius:10px; background:linear-gradient(90deg,#f9ce34,#ee2a7b,#6228d7); color:#fff; font-weight:700; font-size:15px; }
+    .out { display:none; margin-top:14px; padding-top:12px; border-top:1px solid #efefef; }
+    .big { font-size:36px; font-weight:700; letter-spacing:-1px; }
+    .stage { display:inline-block; margin-top:6px; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; background:#efefef; }
+    .note { font-size:12px; color:#8e8e8e; margin-top:10px; line-height:1.45; }
+    .warn { margin:14px 0 0; padding:10px 12px; border-radius:8px; background:#fff0f1; color:#ed4956; font-size:12px; line-height:1.4; }
     .hide { display:none; }
     table { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
-    th, td { border-bottom:1px solid var(--line); padding:8px 4px; text-align:left; }
-    th { color:var(--muted); font-weight:700; }
+    th, td { border-bottom:1px solid #efefef; padding:8px 4px; text-align:left; }
+    th { color:#8e8e8e; font-weight:600; }
+    canvas { width:100%; height:160px; margin-top:10px; background:#fafafa; border:1px solid #efefef; border-radius:12px; display:block; }
   </style>
 </head>
 <body>
@@ -47,8 +50,12 @@
     <div class="card">
       <div class="label">공통</div>
       <div class="row">
-        <select id="sex"><option value="0.68">남성</option><option value="0.55">여성</option></select>
+        <select id="sex"><option value="m">남성</option><option value="f">여성</option></select>
         <input id="weight" type="number" value="70" placeholder="체중 kg" />
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input id="height" type="number" value="173" placeholder="키 cm" />
+        <input id="age" type="number" value="25" placeholder="나이" />
       </div>
     </div>
     <div id="p-alc">
@@ -71,11 +78,21 @@
           <input id="ah" type="number" value="1" placeholder="시간" />
           <input id="am" type="number" value="0" placeholder="분" />
         </div>
+        <div class="label">안주 · 식사</div>
+        <select id="food">
+          <option value="1">공복 (흡수 빠름, 100%)</option>
+          <option value="0.85" selected>안주 조금 (마른안주, 85%)</option>
+          <option value="0.72">안주 보통 (전·과일, 72%)</option>
+          <option value="0.58">든든히 (삼겹살·밥, 58%)</option>
+          <option value="0.5">과식 (기름진 식사, 50%)</option>
+        </select>
+        <p class="note">음식 있으면 위 배출이 느려져 최고 혈중농도가 낮아집니다. 추정입니다.</p>
         <button class="go" type="button" onclick="calcAlc()">계산</button>
         <div class="out" id="o-alc">
           <div class="big" id="alc-bac">0.000%</div>
           <div class="stage" id="alc-st"></div>
           <p class="note" id="alc-note"></p>
+          <canvas id="alc-g" width="400" height="160"></canvas>
         </div>
       </div>
     </div>
@@ -129,6 +146,7 @@
           <div class="big" id="tob-mg">0 mg</div>
           <div class="stage" id="tob-st"></div>
           <p class="note" id="tob-note"></p>
+          <canvas id="tob-g" width="400" height="160"></canvas>
         </div>
       </div>
       <div class="card">
@@ -181,6 +199,7 @@
           <div class="big" id="caf-mg">0 mg</div>
           <div class="stage" id="caf-st"></div>
           <p class="note" id="caf-note"></p>
+          <canvas id="caf-g" width="400" height="160"></canvas>
         </div>
       </div>
     </div>
@@ -215,17 +234,41 @@
       document.getElementById("cafmg").value=e.target.value;
     };
     function stage(el, text, color){ el.textContent=text; el.style.color=color; el.style.background=color+"22"; }
+    function drawGraph(id, pts, hours, color){
+      const c=document.getElementById(id); if(!c) return;
+      const ctx=c.getContext("2d"), W=c.width, H=c.height, p=26;
+      ctx.clearRect(0,0,W,H);
+      ctx.strokeStyle="#efefef";
+      for(let i=0;i<=4;i++){ const y=p+i*(H-2*p)/4; ctx.beginPath(); ctx.moveTo(p,y); ctx.lineTo(W-8,y); ctx.stroke(); }
+      const max=Math.max(...pts,0.001);
+      ctx.beginPath();
+      pts.forEach((v,i)=>{ const x=p+i*(W-p-8)/(pts.length-1), y=H-p-(v/max)*(H-2*p); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+      ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle="#8e8e8e"; ctx.font="11px sans-serif";
+      ctx.fillText("지금", p, H-8); ctx.fillText(hours+"시간 후", W-58, H-8);
+    }
     function calcAlc(){
       const w=+document.getElementById("weight").value||70;
-      const r=+document.getElementById("sex").value;
+      const hgt=+document.getElementById("height").value||173;
+      const age=+document.getElementById("age").value||25;
+      const male=document.getElementById("sex").value!=="f";
+      const tbw=male
+        ? (2.447 - 0.09516*age + 0.1074*hgt + 0.3362*w)
+        : (-2.097 + 0.1069*hgt + 0.2466*w);
       const A=(+document.getElementById("ml").value)*(+document.getElementById("abv").value)/100*0.789*(+document.getElementById("n").value||0);
+      const food=+document.getElementById("food").value;
       const t=(+document.getElementById("ah").value||0)+(+document.getElementById("am").value||0)/60+0.5;
-      let bac=A/(w*r*10)-0.015*t; if(bac<0) bac=0;
+      let bac=(A*0.08/Math.max(tbw,20))*food - 0.015*t; if(bac<0) bac=0;
       document.getElementById("alc-bac").textContent=bac.toFixed(3)+"%";
-      const s=bac<0.02?["거의 안 취함","#7ee0b0"]:bac<0.03?["살짝 풀림","#9be07e"]:bac<0.08?["취함","#ffb454"]:bac<0.15?["많이 취함","#ff8a5b"]:["만취","#ff6b7a"];
+      const s=bac<0.02?["거의 안 취함","#0095f6"]:bac<0.03?["살짝 풀림","#58c322"]:bac<0.08?["취함","#e0a100"]:bac<0.15?["많이 취함","#ed4956"]:["만취","#ed4956"];
       stage(document.getElementById("alc-st"), s[0], s[1]);
       const hrs=bac/0.015, h=Math.floor(hrs), m=Math.round((hrs-h)*60);
-      document.getElementById("alc-note").textContent=`순수 알코올 ${A.toFixed(1)}g · 0%까지 약 ${h}시간 ${m}분`+(bac>=0.03?" · 운전 금지":"");
+      const foodTxt=document.getElementById("food").selectedOptions[0].text;
+      const kcal=Math.round(A*7);
+      document.getElementById("alc-note").textContent=`순수 알코올 ${A.toFixed(1)}g · 약 ${kcal}kcal · ${foodTxt} · 0%까지 약 ${h}시간 ${m}분`+(bac>=0.03?" · 운전 금지":"");
+      const span=Math.max(hrs+2,6), pts=[];
+      for(let i=0;i<40;i++) pts.push(Math.max(bac-0.015*(i/39)*span,0));
+      drawGraph("alc-g", pts, span.toFixed(0), "#ee2a7b");
       document.getElementById("o-alc").style.display="block";
     }
     function calcTob(){
@@ -239,10 +282,12 @@
       const t=((+document.getElementById("th").value||0)+(+document.getElementById("tm").value||0)/60)/2+(+document.getElementById("tlast").value||0)/60;
       const left=nic*Math.pow(0.5, t/2);
       document.getElementById("tob-mg").textContent=left.toFixed(2)+" mg";
-      const s=left<0.3?["거의 없음","#7ee0b0"]:left<1?["살짝 남음","#9be07e"]:left<3?["보통","#ffd56a"]:left<6?["많이 남음","#ffb454"]:["과다","#ff6b7a"];
+      const s=left<0.3?["거의 없음","#0095f6"]:left<1?["살짝 남음","#58c322"]:left<3?["보통","#e0a100"]:left<6?["많이 남음","#ed4956"]:["과다","#ed4956"];
       stage(document.getElementById("tob-st"), s[0], s[1]);
       const eq=(nic/1).toFixed(1);
       document.getElementById("tob-note").textContent=`섭취/흡수 추정 ${nic.toFixed(1)}mg · 연초 약 ${eq}개비분 · 반감기 2시간`;
+      const tpts=[]; for(let i=0;i<40;i++) tpts.push(left*Math.pow(0.5,(i/39)*8/2));
+      drawGraph("tob-g", tpts, "8", "#ee2a7b");
       document.getElementById("o-tob").style.display="block";
     }
     function calcCaf(){
@@ -250,11 +295,23 @@
       const t=((+document.getElementById("ch").value||0)+(+document.getElementById("cm").value||0)/60)/2+(+document.getElementById("clast").value||0)/60;
       const left=dose*Math.pow(0.5, t/5);
       document.getElementById("caf-mg").textContent=Math.round(left)+" mg";
-      const s=left<40?["거의 없음","#7ee0b0"]:left<100?["살짝 각성","#9be07e"]:left<200?["적당한 각성","#ffd56a"]:left<400?["많이 각성","#ffb454"]:["과다","#ff6b7a"];
+      const s=left<40?["거의 없음","#0095f6"]:left<100?["살짝 각성","#58c322"]:left<200?["적당한 각성","#e0a100"]:left<400?["많이 각성","#ed4956"]:["과다","#ed4956"];
       stage(document.getElementById("caf-st"), s[0], s[1]);
       let sleep="이미 낮음";
       if(left>40){ const h=5*Math.log(left/40)/Math.log(2); sleep=`잠들기 쉬운 양까지 약 ${Math.floor(h)}시간 ${Math.round((h-Math.floor(h))*60)}분`; }
-      document.getElementById("caf-note").textContent=`섭취 ${dose}mg · 하루 권장 400mg · ${sleep}`;
+      const txt=document.getElementById("caf").selectedOptions[0].text;
+      const n=+document.getElementById("cafn").value||1;
+      let per=10;
+      if(txt.includes("믹스")) per=70;
+      else if(txt.includes("캔커피")) per=90;
+      else if(txt.includes("몬스터")) per=160;
+      else if(txt.includes("핫식스")||txt.includes("레드불")) per=110;
+      else if(txt.includes("콜라")) per= txt.includes("500")?200:100;
+      else if(txt.includes("아메리카노")) per=15;
+      else if(txt.includes("녹차")) per=5;
+      document.getElementById("caf-note").textContent=`섭취 ${dose}mg · 약 ${per*n}kcal · 하루 권장 400mg · ${sleep}`;
+      const cpts=[]; for(let i=0;i<40;i++) cpts.push(left*Math.pow(0.5,(i/39)*12/5));
+      drawGraph("caf-g", cpts, "12", "#ee2a7b");
       document.getElementById("o-caf").style.display="block";
     }
   </script>

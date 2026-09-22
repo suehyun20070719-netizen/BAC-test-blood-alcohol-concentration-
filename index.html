@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="몸상태" />
+  <title>몸상태 측정기</title>
+  <style>
+    :root { --bg:#0b0d12; --card:#151922; --card2:#1c2230; --line:#2a3142; --text:#f3f5f8; --muted:#9aa3b5; --green:#7ee0b0; --warn:#ffb454; --danger:#ff6b7a; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif; background:#0b0d12; color:var(--text); min-height:100dvh; padding:16px 14px 40px; }
+    .wrap { max-width:480px; margin:0 auto; }
+    h1 { font-size:22px; }
+    .sub { color:var(--muted); font-size:13px; margin:6px 0 14px; line-height:1.45; }
+    .tabs { display:flex; gap:6px; margin-bottom:12px; }
+    .tabs button { flex:1; padding:10px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--text); font:inherit; }
+    .tabs button.on { border-color:var(--green); color:var(--green); }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; margin-top:10px; }
+    .label { font-size:12px; color:var(--muted); font-weight:700; margin:10px 0 6px; }
+    .row { display:flex; gap:8px; }
+    .row > * { flex:1; }
+    input, select { width:100%; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; color:var(--text); font:inherit; }
+    .go { width:100%; margin-top:12px; padding:14px; border:0; border-radius:14px; background:linear-gradient(180deg,#8ef0bc,#4fd89a); color:#062016; font-weight:800; font-size:16px; }
+    .out { display:none; margin-top:12px; }
+    .big { font-size:36px; font-weight:800; }
+    .stage { display:inline-block; margin-top:6px; padding:5px 10px; border-radius:999px; font-size:13px; font-weight:700; }
+    .note { font-size:12px; color:var(--muted); margin-top:10px; line-height:1.45; }
+    .warn { margin-top:10px; padding:10px; border-radius:12px; background:#2a1b1d; color:#ffc2c8; font-size:12px; line-height:1.4; }
+    .hide { display:none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>몸상태 측정기</h1>
+    <p class="sub">술 · 담배 · 카페인. 추정치이며 운전·건강 판단용이 아닙니다.</p>
+    <div class="tabs">
+      <button class="on" data-t="alc">술</button>
+      <button data-t="tob">담배</button>
+      <button data-t="caf">카페인</button>
+    </div>
+
+    <div class="card">
+      <div class="label">공통</div>
+      <div class="row">
+        <select id="sex"><option value="0.68">남성</option><option value="0.55">여성</option></select>
+        <input id="weight" type="number" value="70" placeholder="체중 kg" />
+      </div>
+    </div>
+
+    <div id="p-alc">
+      <div class="card">
+        <div class="label">술</div>
+        <div class="row">
+          <select id="drink">
+            <option value="16.9,50">소주 1잔 50ml</option>
+            <option value="16.9,360">소주 1병</option>
+            <option value="4.5,500">맥주 500ml</option>
+            <option value="13,150">와인 1잔</option>
+            <option value="40,30">위스키 1잔</option>
+            <option value="custom">직접입력</option>
+          </select>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="abv" type="number" value="16.9" placeholder="도수 %" />
+          <input id="ml" type="number" value="50" placeholder="양 ml" />
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="n" type="number" value="4" placeholder="잔 수" />
+          <input id="ah" type="number" value="1" placeholder="시간" />
+          <input id="am" type="number" value="0" placeholder="분" />
+        </div>
+        <button class="go" type="button" onclick="calcAlc()">계산</button>
+        <div class="out" id="o-alc">
+          <div class="big" id="alc-bac">0.000%</div>
+          <div class="stage" id="alc-st"></div>
+          <p class="note" id="alc-note"></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="p-tob" class="hide">
+      <div class="card">
+        <div class="label">담배</div>
+        <div class="row">
+          <select id="cig">
+            <option value="0.5">일반 0.5mg</option>
+            <option value="0.1">초슬림 0.1mg</option>
+            <option value="0.8">진한 0.8mg</option>
+          </select>
+          <input id="cign" type="number" value="8" placeholder="개비" />
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="th" type="number" value="2" placeholder="피운 시간" />
+          <input id="tm" type="number" value="0" placeholder="분" />
+          <input id="tlast" type="number" value="10" placeholder="마지막 후 분" />
+        </div>
+        <button class="go" type="button" onclick="calcTob()">계산</button>
+        <div class="out" id="o-tob">
+          <div class="big" id="tob-mg">0 mg</div>
+          <div class="stage" id="tob-st"></div>
+          <p class="note" id="tob-note"></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="p-caf" class="hide">
+      <div class="card">
+        <div class="label">카페인</div>
+        <div class="row">
+          <select id="caf">
+            <option value="150">아메리카노 150mg</option>
+            <option value="60">믹스커피 60mg</option>
+            <option value="110">캔커피 110mg</option>
+            <option value="80">에너지드링크 80mg</option>
+            <option value="30">녹차/홍차 30mg</option>
+            <option value="25">콜라 25mg</option>
+          </select>
+          <input id="cafn" type="number" value="2" placeholder="잔" />
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="ch" type="number" value="2" placeholder="마신 시간" />
+          <input id="cm" type="number" value="0" placeholder="분" />
+          <input id="clast" type="number" value="30" placeholder="마지막 후 분" />
+        </div>
+        <button class="go" type="button" onclick="calcCaf()">계산</button>
+        <div class="out" id="o-caf">
+          <div class="big" id="caf-mg">0 mg</div>
+          <div class="stage" id="caf-st"></div>
+          <p class="note" id="caf-note"></p>
+        </div>
+      </div>
+    </div>
+    <p class="warn">추정입니다. 한국 음주운전 기준 0.03%. 이 숫자로 운전하지 마세요.</p>
+  </div>
+  <script>
+    document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+      document.querySelectorAll(".tabs button").forEach(x => x.classList.remove("on"));
+      b.classList.add("on");
+      ["alc","tob","caf"].forEach(t => document.getElementById("p-"+t).classList.toggle("hide", b.dataset.t!==t));
+    });
+    document.getElementById("drink").onchange = e => {
+      if (e.target.value==="custom") return;
+      const [a,m] = e.target.value.split(",");
+      document.getElementById("abv").value=a;
+      document.getElementById("ml").value=m;
+    };
+    function stage(el, text, color){ el.textContent=text; el.style.color=color; el.style.background=color+"22"; }
+    function calcAlc(){
+      const w=+document.getElementById("weight").value||70;
+      const r=+document.getElementById("sex").value;
+      const A=(+document.getElementById("ml").value)*(+document.getElementById("abv").value)/100*0.789*(+document.getElementById("n").value||0);
+      const t=(+document.getElementById("ah").value||0)+(+document.getElementById("am").value||0)/60+0.5;
+      let bac=A/(w*r*10)-0.015*t; if(bac<0) bac=0;
+      document.getElementById("alc-bac").textContent=bac.toFixed(3)+"%";
+      const s=bac<0.02?["거의 안 취함","#7ee0b0"]:bac<0.03?["살짝 풀림","#9be07e"]:bac<0.08?["취함","#ffb454"]:bac<0.15?["많이 취함","#ff8a5b"]:["만취","#ff6b7a"];
+      stage(document.getElementById("alc-st"), s[0], s[1]);
+      const hrs=bac/0.015, h=Math.floor(hrs), m=Math.round((hrs-h)*60);
+      document.getElementById("alc-note").textContent=`순수 알코올 ${A.toFixed(1)}g · 0%까지 약 ${h}시간 ${m}분`+(bac>=0.03?" · 운전 금지":"");
+      document.getElementById("o-alc").style.display="block";
+    }
+    function calcTob(){
+      const nic=Math.max((+document.getElementById("cig").value)*2, 0.9)*(+document.getElementById("cign").value||0);
+      const t=((+document.getElementById("th").value||0)+(+document.getElementById("tm").value||0)/60)/2+(+document.getElementById("tlast").value||0)/60;
+      const left=nic*Math.pow(0.5, t/2);
+      document.getElementById("tob-mg").textContent=left.toFixed(2)+" mg";
+      const s=left<0.3?["거의 없음","#7ee0b0"]:left<1?["살짝 남음","#9be07e"]:left<3?["보통","#ffd56a"]:left<6?["많이 남음","#ffb454"]:["과다","#ff6b7a"];
+      stage(document.getElementById("tob-st"), s[0], s[1]);
+      document.getElementById("tob-note").textContent=`흡수 추정 ${nic.toFixed(1)}mg · 반감기 2시간`;
+      document.getElementById("o-tob").style.display="block";
+    }
+    function calcCaf(){
+      const dose=(+document.getElementById("caf").value)*(+document.getElementById("cafn").value||0);
+      const t=((+document.getElementById("ch").value||0)+(+document.getElementById("cm").value||0)/60)/2+(+document.getElementById("clast").value||0)/60;
+      const left=dose*Math.pow(0.5, t/5);
+      document.getElementById("caf-mg").textContent=Math.round(left)+" mg";
+      const s=left<40?["거의 없음","#7ee0b0"]:left<100?["살짝 각성","#9be07e"]:left<200?["적당한 각성","#ffd56a"]:left<400?["많이 각성","#ffb454"]:["과다","#ff6b7a"];
+      stage(document.getElementById("caf-st"), s[0], s[1]);
+      let sleep="이미 낮음";
+      if(left>40){ const h=5*Math.log(left/40)/Math.log(2); sleep=`잠들기 쉬운 양까지 약 ${Math.floor(h)}시간 ${Math.round((h-Math.floor(h))*60)}분`; }
+      document.getElementById("caf-note").textContent=`섭취 ${dose}mg · 하루 권장 400mg · ${sleep}`;
+      document.getElementById("o-caf").style.display="block";
+    }
+  </script>
+</body>
+</html>

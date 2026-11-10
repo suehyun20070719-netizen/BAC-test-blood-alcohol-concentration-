@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAC & Health Tracker (Full Version)</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #131b2e;
+      --border: #232f48;
+      --accent: #d97706;
+      --accent-glow: #f59e0b;
+      --text: #f1f5f9;
+      --subtext: #94a3b8;
+      --danger: #ef4444;
+      --active-tab: #1e293b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px 10px; max-width: 680px; margin: 0 auto; line-height: 1.5; }
+    h1 { font-size: 1.6rem; text-align: center; margin-bottom: 20px; color: var(--accent-glow); text-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+    
+    /* 탭 메뉴 */
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab-btn { flex: 1; padding: 12px; background: var(--card-bg); border: 1px solid var(--border); color: var(--subtext); font-weight: bold; cursor: pointer; border-radius: 8px; text-align: center; }
+    .tab-btn.active { background: var(--accent); color: #000; border-color: var(--accent-glow); }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+    .card-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 14px; color: var(--accent-glow); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 0.85rem; color: var(--subtext); margin-bottom: 6px; }
+    input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: #0b1120; color: var(--text); font-size: 0.95rem; }
+    input:focus, select:focus { outline: none; border-color: var(--accent-glow); }
+
+    .btn { width: 100%; padding: 12px; border-radius: 6px; border: none; background: var(--accent); color: #000; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 8px; transition: 0.2s; }
+    .btn:hover { background: var(--accent-glow); }
+    .btn-danger { background: var(--danger); color: #fff; width: auto; padding: 4px 10px; font-size: 0.8rem; margin: 0; }
+
+    .item-list { list-style: none; margin-top: 12px; }
+    .item-list li { display: flex; justify-content: space-between; align-items: center; background: #0b1120; padding: 10px; margin-bottom: 6px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem; }
+
+    .result-box { text-align: center; padding: 20px; background: #0b1120; border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; }
+    .result-val { font-size: 2.2rem; font-weight: bold; color: var(--accent-glow); }
+    .result-sub { font-size: 0.95rem; color: var(--subtext); margin-top: 6px; }
+    
+    canvas { width: 100%; height: 180px; margin-top: 14px; background: #0b1120; border-radius: 8px; border: 1px solid var(--border); }
+    .roulette-canvas { width: 260px; height: 260px; display: block; margin: 10px auto; }
+    .warning { font-size: 0.75rem; color: var(--danger); text-align: center; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>BAC & Body Status Simulator</h1>
+
+  <!-- 공통 신체 프로필 -->
+  <div class="card">
+    <div class="card-title">⚙️ 신체 기본 프로필</div>
+    <div class="grid">
+      <div class="form-group">
+        <label>성별</label>
+        <select id="gender">
+          <option value="m">남성 (체수분 계수 0.68)</option>
+          <option value="f">여성 (체수분 계수 0.55)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>체중 (kg)</label>
+        <input type="number" id="weight" value="70">
+      </div>
+    </div>
+  </div>
+
+  <!-- 탭 메뉴 -->
+  <div class="tabs">
+    <div class="tab-btn active" onclick="switchTab('alcohol')">🍺 음주 (BAC)</div>
+    <div class="tab-btn" onclick="switchTab('caffeine')">☕ 카페인</div>
+    <div class="tab-btn" onclick="switchTab('nicotine')">🚬 니코틴</div>
+    <div class="tab-btn" onclick="switchTab('roulette')">🎯 안주 룰렛</div>
+  </div>
+
+  <!-- 1. 알코올 탭 -->
+  <div id="tab-alcohol" class="tab-content active">
+    <div class="card">
+      <div class="card-title">1. 마신 술 등록</div>
+      <div class="grid">
+        <div class="form-group">
+          <label>종류</label>
+          <select id="drinkPreset">
+            <option value="16.9,50,소주 1잔">소주 1잔 (50ml / 16.9%)</option>
+            <option value="16.9,360,소주 1병">소주 1병 (360ml / 16.9%)</option>
+            <option value="4.5,500,맥주 500ml">맥주 500ml (4.5%)</option>
+            <option value="13,150,와인 1잔">와인 1잔 (150ml / 13%)</option>
+            <option value="40,30,위스키 1잔">위스키 1잔 (30ml / 40%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>수량 (잔/병)</label>
+          <input type="number" id="drinkQty" value="1" min="1">
+        </div>
+      </div>
+      <button class="btn" onclick="addDrink()">목록에 추가</button>
+      <ul id="drinkList" class="item-list"></ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">2. 조건 & 가중치 연산</div>
+      <div class="form-group">
+        <label>음주 후 경과 시간 (시간)</label>
+        <input type="number" id="elapsedTime" value="2" step="0.5" min="0">
+      </div>
+      <div class="form-group">
+        <label>안주/식사 상태 (체내 흡수 억제율)</label>
+        <select id="foodFactor">
+          <option value="1.0">공복 (흡수율 100%)</option>
+          <option value="0.85" selected>보통 안주/식사 (85%)</option>
+          <option value="0.70">든든한 식사/고기류 (70%)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>숙취해소제 (분해 속도 버프)</label>
+        <select id="hangoverRelief">
+          <option value="1.0">안 먹음 (기본 분해율)</option>
+          <option value="1.20">컨디션/모닝케어 (+20%)</option>
+          <option value="1.22">상쾌환 환/스틱 (+22%)</option>
+          <option value="1.25">여명808/상쾌환 부스터 (+25%)</option>
+          <option value="1.28">컨디션 CEO (+28%)</option>
+        </select>
+      </div>
+      <button class="btn" onclick="calculateBAC()">혈중 알코올 농도 계산</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3. 추정 결과</div>
+      <div class="result-box">
+        <div class="result-val" id="bacResult">0.000%</div>
+        <div class="result-sub" id="bacTimeResult">완전 분해까지 예상 시간: -</div>
+      </div>
+      <canvas id="bacChart"></canvas>
+      <p class="warning">※ 수정 위드마크 공식 기반 단순 추정치입니다. 0.03% 이하여도 절대 운전하지 마세요.</p>
+    </div>
+  </div>
+
+  <!-- 2. 카페인 탭 -->
+  <div id="tab-caffeine" class="tab-content">
+    <div class="card">
+      <div class="card-title">카페인 섭취량 계산</div>
+      <div class="grid">
+        <div class="form-group">
+          <label>음료 종류</label>
+          <select id="caffeinePreset">
+            <option value="150">아메리카노 Tall (150mg)</option>
+            <option value="200">아메리카노 Grande (200mg)</option>
+            <option value="60">믹스커피 1봉 (60mg)</option>
+            <option value="140">몬스터 에너지 (140mg)</option>
+            <option value="80">핫식스 (80mg)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>섭취 후 경과 시간 (시간)</label>
+          <input type="number" id="caffeineTime" value="3" min="0">
+        </div>
+      </div>
+      <button class="btn" onclick="calculateCaffeine()">잔여 카페인 계산</button>
+    </div>
+    <div class="card">
+      <div class="result-box">
+        <div class="result-val" id="caffeineResult">0 mg</div>
+        <div class="result-sub" id="caffeineSub">체내 잔여 카페인 추정치 (반감기 5시간 기준)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 니코틴 탭 -->
+  <div id="tab-nicotine" class="tab-content">
+    <div class="card">
+      <div class="card-title">니코틴 섭취량 계산</div>
+      <div class="form-group">
+        <label>담배 타입</label>
+        <select id="nicoType" onchange="toggleNicoType()">
+          <option value="cig">연초 담배</option>
+          <option value="vape">액상형 전자담배</option>
+        </select>
+      </div>
+      <div id="cigInputs" class="grid">
+        <div class="form-group">
+          <label>개비 당 타르/니코틴 (mg)</label>
+          <input type="number" id="nicoMg" value="0.5" step="0.1">
+        </div>
+        <div class="form-group">
+          <label>피운 개비 수</label>
+          <input type="number" id="cigCount" value="3" min="1">
+        </div>
+      </div>
+      <div id="vapeInputs" class="grid" style="display:none;">
+        <div class="form-group">
+          <label>흡입 횟수 (Puff)</label>
+          <input type="number" id="vapePuff" value="50">
+        </div>
+        <div class="form-group">
+          <label>코일 저항 (옴, Ω)</label>
+          <input type="number" id="vapeOhm" value="0.6" step="0.1">
+        </div>
+      </div>
+      <button class="btn" onclick="calculateNicotine()">체내 니코틴 추정</button>
+    </div>
+    <div class="card">
+      <div class="result-box">
+        <div class="result-val" id="nicoResult">0 mg</div>
+        <div class="result-sub">추정 섭취 니코틴 량</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 안주 룰렛 탭 -->
+  <div id="tab-roulette" class="tab-content">
+    <div class="card" style="text-align: center;">
+      <div class="card-title">🎯 숙취 예방 안주 룰렛</div>
+      <canvas id="rouletteCanvas" class="roulette-canvas" width="260" height="260"></canvas>
+      <button class="btn" onclick="spinRoulette()">룰렛 돌리기!</button>
+      <div class="result-box" style="margin-top: 15px;">
+        <div class="result-sub">추천 안주:</div>
+        <div class="result-val" id="rouletteResult">?</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 탭 전환 logic
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+      if(tabName === 'roulette') drawRoulette();
+    }
+
+    // --- 1. 음주 (BAC) Logic ---
+    let drinks = [];
+    function addDrink() {
+      const preset = document.getElementById('drinkPreset').value.split(',');
+      const abv = parseFloat(preset[0]);
+      const vol = parseFloat(preset[1]);
+      const name = preset[2];
+      const qty = parseInt(document.getElementById('drinkQty').value);
+
+      drinks.push({ abv, vol, qty, name, text: `${name} x ${qty}개` });
+      renderDrinkList();
+    }
+
+    function removeDrink(idx) {
+      drinks.splice(idx, 1);
+      renderDrinkList();
+    }
+
+    function renderDrinkList() {
+      const ul = document.getElementById('drinkList');
+      ul.innerHTML = '';
+      drinks.forEach((item, idx) => {
+        ul.innerHTML += `<li><span>${item.text}</span> <button class="btn-danger" onclick="removeDrink(${idx})">삭제</button></li>`;
+      });
+    }
+
+    function calculateBAC() {
+      if (drinks.length === 0) {
+        alert("술을 최소 하나 이상 추가해주세요.");
+        return;
+      }
+      const gender = document.getElementById('gender').value;
+      const weight = parseFloat(document.getElementById('weight').value);
+      const elapsedTime = parseFloat(document.getElementById('elapsedTime').value);
+      const foodFactor = parseFloat(document.getElementById('foodFactor').value);
+      const hangoverBuff = parseFloat(document.getElementById('hangoverRelief').value);
+
+      let totalPureAlcohol = 0;
+      drinks.forEach(d => {
+        totalPureAlcohol += (d.vol * d.qty) * (d.abv / 100) * 0.8;
+      });
+      totalPureAlcohol *= foodFactor;
+
+      const r = gender === 'm' ? 0.68 : 0.55;
+      const cMax = (totalPureAlcohol) / (weight * r * 10);
+      const beta = 0.015 * hangoverBuff;
+
+      let currentBAC = cMax - (beta * elapsedTime);
+      if (currentBAC < 0) currentBAC = 0;
+
+      const hoursToZero = cMax / beta;
+      const remainingHours = Math.max(0, hoursToZero - elapsedTime);
+
+      document.getElementById('bacResult').innerText = `${currentBAC.toFixed(3)}%`;
+      document.getElementById('bacTimeResult').innerText = remainingHours > 0 
+        ? `완전 분해까지 약 ${remainingHours.toFixed(1)}시간 남음` 
+        : `알코올이 거의 분해되었습니다.`;
+
+      drawBACChart(cMax, beta, elapsedTime);
+    }
+
+    function drawBACChart(cMax, beta, elapsedTime) {
+      const canvas = document.getElementById('bacChart');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const totalHours = Math.max(10, cMax / beta + 2);
+      
+      ctx.strokeStyle = '#232f48';
+      ctx.beginPath();
+      ctx.moveTo(30, 10); ctx.lineTo(30, 140); ctx.lineTo(380, 140);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let h = 0; h <= totalHours; h += 0.5) {
+        let bac = cMax - (beta * h);
+        if (bac < 0) bac = 0;
+        const x = 30 + (h / totalHours) * 340;
+        const y = 140 - (bac / (cMax * 1.2 || 0.1)) * 120;
+        if (h === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      const currentX = 30 + (elapsedTime / totalHours) * 340;
+      const currentBAC = Math.max(0, cMax - beta * elapsedTime);
+      const currentY = 140 - (currentBAC / (cMax * 1.2 || 0.1)) * 120;
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(currentX, currentY, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // --- 2. 카페인 Logic ---
+    function calculateCaffeine() {
+      const baseMg = parseFloat(document.getElementById('caffeinePreset').value);
+      const time = parseFloat(document.getElementById('caffeineTime').value);
+      const remaining = baseMg * Math.pow(0.5, time / 5); // 반감기 5시간 공식
+      document.getElementById('caffeineResult').innerText = `${remaining.toFixed(1)} mg`;
+    }
+
+    // --- 3. 니코틴 Logic ---
+    function toggleNicoType() {
+      const type = document.getElementById('nicoType').value;
+      document.getElementById('cigInputs').style.display = type === 'cig' ? 'grid' : 'none';
+      document.getElementById('vapeInputs').style.display = type === 'vape' ? 'grid' : 'none';
+    }
+
+    function calculateNicotine() {
+      const type = document.getElementById('nicoType').value;
+      let totalNico = 0;
+      if (type === 'cig') {
+        const mg = parseFloat(document.getElementById('nicoMg').value);
+        const count = parseInt(document.getElementById('cigCount').value);
+        totalNico = mg * count;
+      } else {
+        const puff = parseInt(document.getElementById('vapePuff').value);
+        const ohm = parseFloat(document.getElementById('vapeOhm').value);
+        const ml = puff * 0.012 * (1 / ohm);
+        totalNico = ml * 10; // 대략적인 액상 니코틴 농도 환산치
+      }
+      document.getElementById('nicoResult').innerText = `${totalNico.toFixed(2)} mg`;
+    }
+
+    // --- 4. 룰렛 Logic ---
+    const foods = ["계란말이", "조개탕", "두부김치", "먹태", "황태해장국", "오뎅탕"];
+    const colors = ["#d97706", "#1e293b", "#b45309", "#0f172a", "#f59e0b", "#334155"];
+    let startAngle = 0;
+
+    function drawRoulette() {
+      const canvas = document.getElementById('rouletteCanvas');
+      const ctx = canvas.getContext('2d');
+      const numOptions = foods.length;
+      const arcSize = (2 * Math.PI) / numOptions;
+
+      ctx.clearRect(0, 0, 260, 260);
+      for (let i = 0; i < numOptions; i++) {
+        const angle = startAngle + i * arcSize;
+        ctx.fillStyle = colors[i];
+        ctx.beginPath();
+        ctx.arc(130, 130, 120, angle, angle + arcSize, false);
+        ctx.lineTo(130, 130);
+        ctx.fill();
+
+        ctx.save();
+        ctx.fillStyle = "#ffffff";
+        ctx.translate(130 + Math.cos(angle + arcSize / 2) * 80, 130 + Math.sin(angle + arcSize / 2) * 80);
+        ctx.rotate(angle + arcSize / 2 + Math.PI / 2);
+        ctx.font = "bold 12px sans-serif";
+        ctx.fillText(foods[i], -ctx.measureText(foods[i]).width / 2, 0);
+        ctx.restore();
+      }
+    }
+
+    function spinRoulette() {
+      let spinTime = 0;
+      let spinTimeTotal = Math.random() * 3000 + 4000;
+      let startAngleChange = Math.random() * 10 + 20;
+
+      function rotate() {
+        spinTime += 30;
+        if (spinTime >= spinTimeTotal) {
+          stopRotate();
+          return;
+        }
+        const spinAngle = startAngleChange - (spinTime / spinTimeTotal) * startAngleChange;
+        startAngle += (spinAngle * Math.PI / 180);
+        drawRoulette();
+        requestAnimationFrame(rotate);
+      }
+
+      function stopRotate() {
+        const degrees = startAngle * 180 / Math.PI + 90;
+        const arcd = 360 / foods.length;
+        const index = Math.floor((360 - (degrees % 360)) / arcd) % foods.length;
+        document.getElementById('rouletteResult').innerText = foods[index];
+      }
+      rotate();
+    }
+  </script>
+</body>
+</html>
